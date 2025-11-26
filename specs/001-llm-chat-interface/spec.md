@@ -5,6 +5,13 @@
 **Status**: Draft
 **Input**: User description: "нужно реализовать тестовый проект, описанный здесь: https://codex.so/llm-ui"
 
+## Clarifications
+
+### Session 2025-11-26
+
+- Q: What specific predefined prompts should be sent when the dialog opens? → A: No automatic prompts - user must initiate conversation manually
+- Q: Should file attachment capability be included in the initial implementation or deferred as a future enhancement? → A: Basic placeholder only - show upload button UI but don't implement backend functionality yet
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Initiate Conversation with LLM (Priority: P1) 🎯 MVP
@@ -19,8 +26,7 @@ Users need to start a conversation with an LLM by sending text messages and rece
 
 1. **Given** the chat interface is open, **When** the user types a message and submits it, **Then** the message appears right-aligned in a bubble on the screen
 2. **Given** a user message has been sent, **When** the LLM processes the request, **Then** the response appears left-aligned without a background bubble
-3. **Given** the dialog opens for the first time, **When** the interface loads, **Then** predefined initial prompts are automatically sent to the LLM
-4. **Given** a user sends a message, **When** the LLM response contains Markdown formatting, **Then** the content is rendered with proper formatting (headers, lists, code blocks, etc.)
+3. **Given** a user sends a message, **When** the LLM response contains Markdown formatting, **Then** the content is rendered with proper formatting (headers, lists, code blocks, etc.)
 
 ---
 
@@ -60,11 +66,11 @@ Users want visibility into the LLM's "thinking" process, including when the mode
 
 ### User Story 4 - Compose and Submit Messages Efficiently (Priority: P2)
 
-Users want an intuitive and efficient message input experience with modern conveniences like keyboard shortcuts, auto-resizing input fields, and the ability to attach files.
+Users want an intuitive and efficient message input experience with modern conveniences like keyboard shortcuts and auto-resizing input fields.
 
 **Why this priority**: Significantly improves usability and matches user expectations from modern chat applications. Important for user satisfaction though not blocking basic functionality.
 
-**Independent Test**: User can type multi-line messages that auto-expand, press Enter to send, attach files for context, and always see the input form even when scrolling through long conversations.
+**Independent Test**: User can type multi-line messages that auto-expand, press Enter to send, and always see the input form even when scrolling through long conversations.
 
 **Acceptance Scenarios**:
 
@@ -72,7 +78,7 @@ Users want an intuitive and efficient message input experience with modern conve
 2. **Given** the user has typed a message, **When** they press Enter (without Shift), **Then** the message is submitted
 3. **Given** the user wants a new line, **When** they press Shift+Enter, **Then** a new line is added without submitting
 4. **Given** the user is scrolling through conversation history, **When** they scroll down, **Then** the input form remains fixed at the bottom with a gradient overlay for visual separation
-5. **Given** the input form is displayed, **When** the user clicks an attach button, **Then** they can select files to include with their message
+5. **Given** the input form is displayed, **When** the user sees an attach button, **Then** the button is visible as a placeholder UI element (clicking shows "Coming soon" message)
 6. **Given** the user submits an empty message, **When** they try to send, **Then** the form shows validation feedback and prevents submission
 
 ---
@@ -83,7 +89,6 @@ Users want an intuitive and efficient message input experience with modern conve
 - How does the system handle extremely long responses that exceed memory limits? Implement pagination or truncation with a "show more" option.
 - What happens when Markdown parsing encounters malformed syntax? Display the raw text with an error indicator rather than breaking the interface.
 - How does the interface behave on slow connections? Show clear loading states and allow users to continue interacting with past messages.
-- What happens when file attachments are too large? Validate file size before upload and show clear error messages with size limits.
 - How does the system handle rapid consecutive messages? Queue them appropriately and indicate processing status for each.
 
 ## Requirements *(mandatory)*
@@ -93,23 +98,22 @@ Users want an intuitive and efficient message input experience with modern conve
 - **FR-001**: System MUST display user messages right-aligned in bubble-style containers
 - **FR-002**: System MUST display LLM responses left-aligned without background styling
 - **FR-003**: System MUST parse LLM responses as Markdown and render appropriate formatting blocks
-- **FR-004**: System MUST send predefined prompts automatically when a new dialog session opens
-- **FR-005**: System MUST stream LLM responses in real-time, displaying content as it arrives from the server
-- **FR-006**: System MUST animate incoming text word-by-word or in small chunks during streaming
-- **FR-007**: System MUST display a "Thinking..." indicator with animation while the LLM is processing
-- **FR-008**: System MUST show LLM reasoning text in a distinct visual style (gray/muted) when available
-- **FR-009**: System MUST provide expand/collapse functionality for reasoning text sections
-- **FR-010**: System MUST hide the "Thinking..." indicator once the LLM completes its response
-- **FR-011**: System MUST provide a message input form fixed at the bottom of the interface
-- **FR-012**: System MUST auto-resize the input field as users type multi-line messages
-- **FR-013**: System MUST submit messages when users press Enter (without modifier keys)
-- **FR-014**: System MUST insert new lines when users press Shift+Enter
-- **FR-015**: System MUST provide file attachment capability for user messages
-- **FR-016**: System MUST validate user input and prevent submission of empty messages
-- **FR-017**: System MUST display a gradient overlay on the input form when users scroll
-- **FR-018**: System MUST use Abstract Syntax Tree (AST) pattern for parsing Markdown into structured blocks
-- **FR-019**: System MUST implement both client-side and server-side components
-- **FR-020**: System MUST connect to LLM service using provided authentication token stored in environment configuration
+- **FR-004**: System MUST stream LLM responses in real-time, displaying content as it arrives from the server
+- **FR-005**: System MUST animate incoming text word-by-word or in small chunks during streaming
+- **FR-006**: System MUST display a "Thinking..." indicator with animation while the LLM is processing
+- **FR-007**: System MUST show LLM reasoning text in a distinct visual style (gray/muted) when available
+- **FR-008**: System MUST provide expand/collapse functionality for reasoning text sections
+- **FR-009**: System MUST hide the "Thinking..." indicator once the LLM completes its response
+- **FR-010**: System MUST provide a message input form fixed at the bottom of the interface
+- **FR-011**: System MUST auto-resize the input field as users type multi-line messages
+- **FR-012**: System MUST submit messages when users press Enter (without modifier keys)
+- **FR-013**: System MUST insert new lines when users press Shift+Enter
+- **FR-014**: System MUST display file attachment button UI as placeholder (backend functionality deferred to future enhancement)
+- **FR-015**: System MUST validate user input and prevent submission of empty messages
+- **FR-016**: System MUST display a gradient overlay on the input form when users scroll
+- **FR-017**: System MUST use Abstract Syntax Tree (AST) pattern for parsing Markdown into structured blocks
+- **FR-018**: System MUST implement both client-side and server-side components
+- **FR-019**: System MUST connect to LLM service using provided authentication token stored in environment configuration
 
 ### Key Entities
 
@@ -122,7 +126,6 @@ Users want an intuitive and efficient message input experience with modern conve
 
 - **Conversation Session**: Represents a dialog exchange between user and LLM
   - Messages: Ordered collection of all messages in the session
-  - Initial prompts: Predefined messages sent on session start
   - State: Active, thinking, idle, or error
 
 - **Reasoning Block**: Represents LLM's thought process output
@@ -135,12 +138,6 @@ Users want an intuitive and efficient message input experience with modern conve
   - Content: The actual text or data
   - Formatting attributes: Style, nesting level, language (for code), etc.
 
-- **File Attachment**: Represents files uploaded by users
-  - Name: Original filename
-  - Size: File size in bytes
-  - Type: MIME type
-  - Content: File data or reference
-
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
@@ -151,7 +148,7 @@ Users want an intuitive and efficient message input experience with modern conve
 - **SC-004**: Users can complete the full conversation flow (open dialog, send message, receive response, send follow-up) within 30 seconds on first use
 - **SC-005**: The interface remains responsive (< 100ms interaction lag) during message streaming and rendering
 - **SC-006**: Message input form auto-resizes correctly for messages up to 20 lines without layout issues
-- **SC-007**: File attachments up to 10MB can be successfully uploaded and included with messages
+- **SC-007**: File attachment placeholder button is visible and clicking it shows appropriate "Coming soon" message
 - **SC-008**: Zero critical rendering errors (interface breaking bugs) occur during normal usage patterns
 - **SC-009**: Reasoning text expand/collapse actions complete within 200ms
 - **SC-010**: The interface maintains design fidelity with provided mockup specifications (visual accuracy > 95%)
@@ -162,8 +159,6 @@ Users want an intuitive and efficient message input experience with modern conve
 - **LLM Service Availability**: The LLM proxy service is operational and accessible with provided authentication token
 - **Browser Compatibility**: Users are accessing the interface through modern web browsers (last 2 major versions of Chrome, Firefox, Safari, or Edge)
 - **Markdown Complexity**: LLM responses use standard Markdown syntax without extensive nesting or exotic extensions
-- **File Types**: File attachments are standard document types (text, PDF, images) rather than executables or binary formats requiring special handling
-- **Initial Prompts**: Predefined prompts are pre-configured and appropriate for the intended use case
 - **Session Management**: Single conversation session per user (no need for session persistence or multi-session management in MVP)
 - **Authentication**: LLM service authentication is handled via API token in environment configuration (no user authentication required)
 - **Localization**: Interface text is in Russian based on the project source, with potential for internationalization later
@@ -174,5 +169,4 @@ Users want an intuitive and efficient message input experience with modern conve
 - **LLM Service**: External LLM service must be available via proxy with provided token
 - **Markdown Parser Library**: Requires capability to parse Markdown into AST structure
 - **WebSocket or SSE Support**: Server infrastructure must support real-time streaming for progressive response delivery
-- **File Upload Infrastructure**: Backend must handle file upload, validation, and storage
 - **Environment Configuration**: Secure method to store and access API credentials (.env or similar)
