@@ -1,0 +1,13 @@
+# Svelte stuff
+.svelte-kit/
+package
+
+# Jetbrains IDE stuff
+.idea/
+
+# Claude stuff
+.claude/
+
+# Specify stuff
+.specify/*
+!.specify/memory/
