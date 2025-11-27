@@ -1,0 +1,256 @@
+openapi: 3.0.3
+info:
+  title: LLM Chat Interface API
+  description: Backend API for LLM-powered chat application with real-time streaming responses
+  version: 1.0.0
+  contact:
+    name: Codex LLM UI
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+tags:
+  - name: chat
+    description: Chat conversation endpoints
+  - name: health
+    description: Health check endpoints
+
+paths:
+  /api/chat:
+    post:
+      summary: Send message and receive streaming LLM response
+      description: |
+        Submits a user message to the LLM and returns a streaming response via Server-Sent Events (SSE).
+
+        The response is a text/event-stream that sends multiple chunks until completion.
+
+        **Event Types**:
+        - `message`: Initial message creation event (contains full Message object)
+        - `chunk`: Content chunk for the LLM response
+        - `reasoning`: Reasoning text chunk (if available)
+        - `done`: Stream completion signal
+        - `error`: Error occurred during streaming
+      tags:
+        - chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              simpleMessage:
+                summary: Simple user message
+                value:
+                  message: "What is TypeScript?"
+              withSession:
+                summary: Message with session ID
+                value:
+                  message: "Can you explain more?"
+                  sessionId: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: SSE stream of chat response chunks
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: Server-Sent Events stream
+              examples:
+                streamExample:
+                  summary: Example SSE stream
+                  value: |
+                    event: message
+                    data: {"id":"msg-123","content":"","sender":"llm","timestamp":1701234567890,"status":"streaming"}
+
+                    event: chunk
+                    data: {"type":"chunk","content":"TypeScript ","messageId":"msg-123"}
+
+                    event: chunk
+                    data: {"type":"chunk","content":"is a typed ","messageId":"msg-123"}
+
+                    event: chunk
+                    data: {"type":"chunk","content":"superset of JavaScript.","messageId":"msg-123"}
+
+                    event: done
+                    data: {"type":"done","content":"","messageId":"msg-123"}
+        '400':
+          description: Bad request (invalid input)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                emptyMessage:
+                  value:
+                    error: "Message cannot be empty"
+                    code: "INVALID_INPUT"
+                    timestamp: 1701234567890
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                llmError:
+                  value:
+                    error: "LLM service unavailable"
+                    code: "LLM_ERROR"
+                    timestamp: 1701234567890
+
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns server health status
+      tags:
+        - health
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "ok"
+                timestamp: 1701234567890
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          minLength: 1
+          maxLength: 50000
+          description: The user's message text
+          example: "What is TypeScript?"
+        sessionId:
+          type: string
+          format: uuid
+          description: Optional session identifier for conversation continuity
+          example: "550e8400-e29b-41d4-a716-446655440000"
+
+    Message:
+      type: object
+      required:
+        - id
+        - content
+        - sender
+        - timestamp
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique message identifier
+          example: "msg-550e8400-e29b-41d4-a716-446655440000"
+        content:
+          type: string
+          description: The message text content
+          example: "TypeScript is a typed superset of JavaScript."
+        sender:
+          type: string
+          enum: [user, llm]
+          description: Who sent the message
+          example: "llm"
+        timestamp:
+          type: integer
+          format: int64
+          description: Unix timestamp in milliseconds
+          example: 1701234567890
+        status:
+          type: string
+          enum: [pending, streaming, complete, error]
+          description: Current message state
+          example: "streaming"
+        reasoning:
+          description: LLM reasoning block (optional, only for LLM messages)
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/ReasoningBlock'
+
+    ReasoningBlock:
+      type: object
+      required:
+        - content
+        - isExpanded
+      properties:
+        content:
+          type: string
+          description: The reasoning text
+          example: "To answer this question, I need to consider TypeScript's relationship with JavaScript..."
+        isExpanded:
+          type: boolean
+          description: Whether the reasoning is currently visible in UI
+          example: true
+
+    StreamChunk:
+      type: object
+      required:
+        - type
+        - content
+        - messageId
+      properties:
+        type:
+          type: string
+          enum: [chunk, reasoning, done, error]
+          description: Type of stream chunk
+          example: "chunk"
+        content:
+          type: string
+          description: The text content of this chunk
+          example: "TypeScript "
+        messageId:
+          type: string
+          format: uuid
+          description: ID of the message this chunk belongs to
+          example: "msg-550e8400-e29b-41d4-a716-446655440000"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - code
+        - timestamp
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+          example: "Message cannot be empty"
+        code:
+          type: string
+          description: Machine-readable error code
+          example: "INVALID_INPUT"
+          enum:
+            - INVALID_INPUT
+            - LLM_ERROR
+            - SESSION_NOT_FOUND
+            - INTERNAL_ERROR
+        timestamp:
+          type: integer
+          format: int64
+          description: Unix timestamp when error occurred
+          example: 1701234567890
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, down]
+          description: Server health status
+          example: "ok"
+        timestamp:
+          type: integer
+          format: int64
+          description: Current server time
+          example: 1701234567890
