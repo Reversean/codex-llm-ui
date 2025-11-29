@@ -1,0 +1,13 @@
+# ============================================
+# Backend-specific .gitignore
+# (Common patterns handled by root .gitignore)
+# ============================================
+
+# TypeScript build output
+dist/
+*.tsbuildinfo
+
+# Backend-specific temporary files
+*.pid
+*.seed
+*.pid.lock

@@ -1,0 +1,22 @@
+# ============================================
+# Frontend-specific .gitignore (SvelteKit)
+# (Common patterns handled by root .gitignore)
+# ============================================
+
+# SvelteKit build output
+.svelte-kit/
+build/
+
+# Deployment platforms
+.vercel/
+.netlify/
+.cloudflare/
+.wrangler/
+.output/
+
+# Vite timestamp files
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Static adapter output (if used)
+static/
