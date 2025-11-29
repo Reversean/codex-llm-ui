@@ -1,13 +1,48 @@
-# Svelte stuff
-.svelte-kit/
-package
+# Dependencies (all workspaces)
+node_modules/
 
-# Jetbrains IDE stuff
+# Lock files (workspace root manages these)
+package-lock.json
+
+# Environment variables (all workspaces)
+.env
+.env.*
+!.env.example
+
+# Testing (all workspaces)
+coverage/
+*.lcov
+.nyc_output/
+playwright-report/
+test-results/
+playwright/.cache/
+
+# Logs (all workspaces)
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# Editor files
+.vscode/
 .idea/
 
-# Claude stuff
-.claude/
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.temp/
 
-# Specify stuff
+# Project-specific
+.claude/
 .specify/*
 !.specify/memory/
