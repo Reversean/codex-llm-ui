@@ -51,15 +51,15 @@ This is a **web application** with separate frontend and backend:
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T012 Create backend/src/server.ts with Express app initialization and CORS configuration
-- [ ] T013 [P] Implement backend/src/routes/health.ts with GET /health endpoint
+- [x] T012 Create backend/src/server.ts with Express app initialization and CORS configuration
+- [x] T013 [P] Implement backend/src/routes/health.ts with GET /health endpoint
 - [ ] T014 [P] Create backend/src/services/llm.ts skeleton for LLM proxy client (SSE streaming)
 - [ ] T015 [P] Create frontend/src/lib/stores/conversation.ts with Svelte writable store for messages array
 - [ ] T016 [P] Create frontend/src/lib/stores/ui.ts with stores for isThinking, isStreaming, errorMessage
 - [ ] T017 [P] Create frontend/src/lib/services/api.ts skeleton for API client (fetch + SSE handling)
-- [ ] T018 Setup backend error handling middleware in backend/src/server.ts
-- [ ] T019 Setup environment configuration loading in backend/src/server.ts using dotenv
-- [ ] T020 Verify health endpoint returns 200 OK (run backend, curl http://localhost:3000/health)
+- [x] T018 Setup backend error handling middleware in backend/src/server.ts
+- [x] T019 Setup environment configuration loading in backend/src/server.ts using dotenv
+- [x] T020 Verify health endpoint returns 200 OK (run backend, curl http://localhost:3000/health)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
