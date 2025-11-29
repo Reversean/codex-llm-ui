@@ -53,7 +53,7 @@ This is a **web application** with separate frontend and backend:
 
 - [x] T012 Create backend/src/server.ts with Express app initialization and CORS configuration
 - [x] T013 [P] Implement backend/src/routes/health.ts with GET /health endpoint
-- [ ] T014 [P] Create backend/src/services/llm.ts skeleton for LLM proxy client (SSE streaming)
+- [x] T014 [P] Create backend/src/services/llm.ts skeleton for LLM proxy client (SSE streaming)
 - [ ] T015 [P] Create frontend/src/lib/stores/conversation.ts with Svelte writable store for messages array
 - [ ] T016 [P] Create frontend/src/lib/stores/ui.ts with stores for isThinking, isStreaming, errorMessage
 - [ ] T017 [P] Create frontend/src/lib/services/api.ts skeleton for API client (fetch + SSE handling)
