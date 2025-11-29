@@ -18,11 +18,11 @@ while delivering a functional chat application.
 ## Technical Context
 
 **Language/Version**: TypeScript 5.x (both frontend and backend for type safety and better developer experience)
-**Frontend Framework**: Svelte 4.x with SvelteKit for routing and SSR capabilities
-**Backend Runtime**: Node.js 20.x LTS with Express 4.x for API server
+**Frontend Framework**: Svelte 5.x with SvelteKit for routing and SSR capabilities
+**Backend Runtime**: Node.js 20.x LTS with Express 5.x for API server
 **Primary Dependencies**:
 
-- **Frontend**: `svelte@4`, `@sveltejs/kit`, `marked` (Markdown AST parser), `highlight.js` (syntax highlighting)
+- **Frontend**: `svelte`, `@sveltejs/kit`, `marked` (Markdown AST parser), `highlight.js` (syntax highlighting)
 - **Backend**: `express`, `cors`, `dotenv`, `eventsource-parser` (SSE stream parsing)
 
 **Constraint**: No external UI component libraries. All Svelte components are custom-built.

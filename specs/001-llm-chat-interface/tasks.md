@@ -31,17 +31,17 @@ This is a **web application** with separate frontend and backend:
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure (backend/, frontend/, shared/)
-- [ ] T002 [P] Initialize backend Node.js project with TypeScript 5.x, Express 4.x, cors, dotenv, eventsource-parser
-- [ ] T003 [P] Initialize frontend SvelteKit project with TypeScript 5.x, Svelte 4.x, marked, highlight.js
-- [ ] T004 [P] Configure ESLint and Prettier for both backend and frontend
-- [ ] T005 [P] Setup Vitest for backend unit/integration tests in backend/tests/
-- [ ] T006 [P] Setup Vitest + @testing-library/svelte for frontend component tests in frontend/tests/
-- [ ] T007 [P] Setup Playwright for E2E tests in frontend/tests/e2e/
-- [ ] T008 Create shared/types.ts with TypeScript interfaces (Message, ConversationSession, ReasoningBlock, StreamChunk)
-- [ ] T009 Create .env.example with LLM_API_URL, LLM_API_TOKEN, PORT placeholders
-- [ ] T010 [P] Configure TypeScript strict mode for both backend and frontend
-- [ ] T011 [P] Setup global CSS variables in frontend/src/app.css
+- [x] T001 Create project directory structure (backend/, frontend/, shared/)
+- [x] T002 [P] Initialize backend Node.js project with TypeScript 5.x, Express 5.x, cors, dotenv, eventsource-parser
+- [x] T003 [P] Initialize frontend SvelteKit project with TypeScript 5.x, Svelte 5.x, marked, highlight.js
+- [x] T004 [P] Configure ESLint and Prettier for both backend and frontend
+- [x] T005 [P] Setup Vitest for backend unit/integration tests in backend/tests/
+- [x] T006 [P] Setup Vitest + @testing-library/svelte for frontend component tests in frontend/tests/
+- [x] T007 [P] Setup Playwright for E2E tests in frontend/tests/e2e/
+- [x] T008 Create shared/types.ts with TypeScript interfaces (Message, ConversationSession, ReasoningBlock, StreamChunk)
+- [x] T009 Create .env.example with LLM_API_URL, LLM_API_TOKEN, PORT placeholders
+- [x] T010 [P] Configure TypeScript strict mode for both backend and frontend
+- [x] T011 [P] Setup global CSS variables in frontend/src/app.css
 
 ---
 
