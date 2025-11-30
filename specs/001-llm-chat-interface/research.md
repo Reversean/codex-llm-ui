@@ -70,46 +70,58 @@ This document captures research findings and decisions made during the planning 
 
 ---
 
-## Decision 3: Markdown Parsing - `marked` Library
+## Decision 3: Markdown Parsing - `micromark` Library
 
-**Decision**: Use `marked` library for Markdown parsing with AST rendering approach.
+**Decision**: Use `micromark` library for Markdown parsing with AST rendering approach.
 
 **Rationale**:
-1. **Spec Requirement**: FR-017 mandates AST pattern for Markdown parsing
-2. **Extensibility**: `marked` provides lexer/parser separation for AST access
-3. **Performance**: Fast, battle-tested library (used by GitHub, npm)
-4. **Size**: ~30KB minified, acceptable for bundle size target
-5. **Constraint Compliance**: Parsing libraries are allowed (UI component libraries are not)
+1. **Spec Requirement**: FR-018 mandates AST pattern for Markdown parsing
+2. **Smallest Bundle**: ~10KB core (vs 30KB for `marked`, 40-50KB for `remark`)
+3. **Spec-Compliant**: Follows CommonMark specification exactly, handles edge cases correctly
+4. **Security**: Smallest attack surface for parsing LLM-generated content
+5. **Performance Target**: Helps meet SC-005 (< 100ms interaction lag) and bundle size targets
+6. **Constraint Compliance**: Parsing libraries are allowed (UI component libraries are not)
 
-**Alternatives Considered**:
-- **remark**: More modular (unified ecosystem), but more complex API for beginners
-- **markdown-it**: Extensible plugin system, but heavier and more complex
-- **Custom parser**: More learning, but `marked` is better for production quality
+**Alternatives Considered & Why Not Chosen**:
+- **marked**: Simpler API (~30KB), but 3x larger bundle and less spec-compliant. Simplicity advantage minimal with good documentation.
+- **remark**: Most powerful (unified ecosystem, plugins), but overkill for simple rendering. 4-5x larger bundle with plugins. Better for complex MDX/rehype workflows not needed here.
+- **markdown-it**: Extensible plugin system, but heavier and more complex than needed
+- **Custom parser**: More learning, but production-quality parsing is complex (security, edge cases)
 
 **AST Rendering Approach**:
 ```svelte
 <!-- MarkdownRenderer.svelte -->
 <script>
-  import { marked } from 'marked';
+  import { compile } from 'micromark';
+  import { fromMarkdown } from 'mdast-util-from-markdown';
 
   export let content;
 
-  // Parse to tokens (AST)
-  $: tokens = marked.lexer(content);
+  // Parse to AST (mdast)
+  $: ast = fromMarkdown(content);
 
-  // Render each token type
-  function renderToken(token) {
-    switch(token.type) {
-      case 'heading': return `<h${token.depth}>${token.text}</h${token.depth}>`;
-      case 'paragraph': return `<p>${token.text}</p>`;
-      case 'code': return `<pre><code class="language-${token.lang}">${token.text}</code></pre>`;
-      // ... other types
+  // Render each AST node type
+  function renderNode(node) {
+    switch(node.type) {
+      case 'heading':
+        return `<h${node.depth}>${renderChildren(node)}</h${node.depth}>`;
+      case 'paragraph':
+        return `<p>${renderChildren(node)}</p>`;
+      case 'code':
+        return `<pre><code class="language-${node.lang || ''}">${node.value}</code></pre>`;
+      case 'text':
+        return node.value;
+      // ... other node types
     }
+  }
+
+  function renderChildren(node) {
+    return node.children?.map(renderNode).join('') || '';
   }
 </script>
 
-{#each tokens as token}
-  {@html renderToken(token)}
+{#each ast.children as node}
+  {@html renderNode(node)}
 {/each}
 ```
 
@@ -117,10 +129,17 @@ This document captures research findings and decisions made during the planning 
 - Use `@html` directive carefully (XSS risk)
 - Sanitize user-generated content if ever added
 - LLM responses assumed safe (from trusted API)
+- `micromark` smallest attack surface (strict spec compliance)
+
+**Required Packages**:
+```bash
+npm install micromark mdast-util-from-markdown
+```
 
 **References**:
-- [marked.js Documentation](https://marked.js.org/)
-- [Marked Advanced Configuration](https://marked.js.org/using_advanced)
+- [micromark Documentation](https://github.com/micromark/micromark)
+- [mdast-util-from-markdown](https://github.com/syntax-tree/mdast-util-from-markdown)
+- [CommonMark Specification](https://commonmark.org/)
 
 ---
 
@@ -369,7 +388,7 @@ export const isStreaming = writable(false);
 | Backend Runtime | Node.js + Express | 20 LTS / 4.x | API server | ✅ Allowed (framework) |
 | Language | TypeScript | 5.x | Type safety | ✅ Allowed (language) |
 | SSE Streaming | eventsource-parser | Latest | Parse SSE on backend | ✅ Allowed (infrastructure) |
-| Markdown Parser | marked | 11.x | Parse MD to AST | ✅ Allowed (utility) |
+| Markdown Parser | micromark + mdast-util | Latest | Parse MD to AST (~10KB) | ✅ Allowed (utility) |
 | Syntax Highlighting | Highlight.js | 11.x | Code block highlighting | ✅ Allowed (utility) |
 | State | Svelte Stores | Native | Client state | ✅ Built-in |
 | Testing (Unit) | Vitest | Latest | Test runner | ✅ Allowed (dev tool) |
