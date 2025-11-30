@@ -12,6 +12,15 @@
 - Q: What specific predefined prompts should be sent when the dialog opens? → A: No automatic prompts - user must initiate conversation manually
 - Q: Should file attachment capability be included in the initial implementation or deferred as a future enhancement? → A: Basic placeholder only - show upload button UI but don't implement backend functionality yet
 
+### Session 2025-11-30
+
+- Q: Should requests be sent directly to LLM proxy from frontend or via backend? → A: Backend required - ai-proxy lacks CORS headers, requires protected API keys, uses custom headers that trigger preflight requests
+- Q: What protocol should the backend use to stream ai-proxy NDJSON responses to the frontend? → A: Server-Sent Events (SSE)
+- Q: Should conversation history persist across page reloads or remain in-memory only? → A: In-memory only (session cleared on page reload)
+- Q: Which ai-proxy stream event types should frontend handle (text-delta, reasoning-delta, etc.)? → A: MVP: text-delta only. Post-MVP priority: add reasoning-delta and other event types
+- Q: If SSE connection is lost mid-stream, what should happen to incomplete message? → A: Discard partial message and show error with retry (starts fresh)
+- Q: How should system respond to ai-proxy 429 rate limit errors? → A: Similar to connection loss - discard partial message, display error message, provide retry button
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Initiate Conversation with LLM (Priority: P1) 🎯 MVP
@@ -46,11 +55,11 @@ Users want to see LLM responses appear progressively in real-time as they are ge
 
 ---
 
-### User Story 3 - Understand LLM Reasoning Process (Priority: P3)
+### User Story 3 - Understand LLM Reasoning Process (Priority: Post-MVP)
 
 Users want visibility into the LLM's "thinking" process, including when the model is processing and any reasoning steps it generates, allowing them to understand how responses are formulated.
 
-**Why this priority**: Provides transparency and trust in the AI's process, especially valuable for complex queries. Nice-to-have rather than essential for basic functionality.
+**Why this priority**: Provides transparency and trust in the AI's process, especially valuable for complex queries. Deferred to post-MVP to keep initial implementation simple, but prioritized as first enhancement after MVP completion.
 
 **Independent Test**: User sends a complex query and can see a "Thinking..." indicator followed by collapsible reasoning text that explains the LLM's thought process before the final answer.
 
@@ -85,7 +94,9 @@ Users want an intuitive and efficient message input experience with modern conve
 
 ### Edge Cases
 
-- What happens when the LLM connection is lost mid-stream? System should display an error message and allow retry.
+- What happens when the SSE connection is lost mid-stream? System MUST discard incomplete partial message, display "Connection lost" error message, and provide retry button that initiates fresh request.
+- How does the system respond to ai-proxy rate limiting (429 errors)? System MUST discard incomplete partial message (if any), display "Rate limit exceeded. Please try again." error message, and provide retry button.
+- How does the system handle ai-proxy authentication errors (401, 403)? System MUST display appropriate error message indicating authentication/authorization failure without exposing sensitive details.
 - How does the system handle extremely long responses that exceed memory limits? Implement pagination or truncation with a "show more" option.
 - What happens when Markdown parsing encounters malformed syntax? Display the raw text with an error indicator rather than breaking the interface.
 - How does the interface behave on slow connections? Show clear loading states and allow users to continue interacting with past messages.
@@ -100,20 +111,29 @@ Users want an intuitive and efficient message input experience with modern conve
 - **FR-003**: System MUST parse LLM responses as Markdown and render appropriate formatting blocks
 - **FR-004**: System MUST stream LLM responses in real-time, displaying content as it arrives from the server
 - **FR-005**: System MUST animate incoming text word-by-word or in small chunks during streaming
-- **FR-006**: System MUST display a "Thinking..." indicator with animation while the LLM is processing
-- **FR-007**: System MUST show LLM reasoning text in a distinct visual style (gray/muted) when available
-- **FR-008**: System MUST provide expand/collapse functionality for reasoning text sections
-- **FR-009**: System MUST hide the "Thinking..." indicator once the LLM completes its response
-- **FR-010**: System MUST provide a message input form fixed at the bottom of the interface
-- **FR-011**: System MUST auto-resize the input field as users type multi-line messages
-- **FR-012**: System MUST submit messages when users press Enter (without modifier keys)
-- **FR-013**: System MUST insert new lines when users press Shift+Enter
-- **FR-014**: System MUST display file attachment button UI as placeholder (backend functionality deferred to future enhancement)
-- **FR-015**: System MUST validate user input and prevent submission of empty messages
-- **FR-016**: System MUST display a gradient overlay on the input form when users scroll
-- **FR-017**: System MUST use Abstract Syntax Tree (AST) pattern for parsing Markdown into structured blocks
-- **FR-018**: System MUST implement both client-side and server-side components
-- **FR-019**: System MUST connect to LLM service using provided authentication token stored in environment configuration
+- **FR-006**: System MUST handle text-delta events from ai-proxy /stream endpoint for MVP
+- **FR-007**: [Post-MVP] System SHOULD display a "Thinking..." indicator with animation while the LLM is processing
+- **FR-008**: [Post-MVP] System SHOULD show LLM reasoning text in a distinct visual style (gray/muted) when available
+- **FR-009**: [Post-MVP] System SHOULD provide expand/collapse functionality for reasoning text sections
+- **FR-010**: [Post-MVP] System SHOULD handle reasoning-delta and other event types from ai-proxy stream
+- **FR-011**: System MUST provide a message input form fixed at the bottom of the interface
+- **FR-012**: System MUST auto-resize the input field as users type multi-line messages
+- **FR-013**: System MUST submit messages when users press Enter (without modifier keys)
+- **FR-014**: System MUST insert new lines when users press Shift+Enter
+- **FR-015**: System MUST display file attachment button UI as placeholder (backend functionality deferred to future enhancement)
+- **FR-016**: System MUST validate user input and prevent submission of empty messages
+- **FR-017**: System MUST display a gradient overlay on the input form when users scroll
+- **FR-018**: System MUST use Abstract Syntax Tree (AST) pattern for parsing Markdown into structured blocks
+- **FR-019**: System MUST implement both client-side and server-side components with backend acting as secure proxy to ai-proxy service
+- **FR-020**: Backend MUST connect to ai-proxy service using API key (x-api-key header) stored securely in server environment configuration
+- **FR-021**: Backend MUST proxy both synchronous (/generate endpoint) and streaming (/stream endpoint) requests to ai-proxy
+- **FR-022**: Backend MUST use Server-Sent Events (SSE) to stream NDJSON responses from ai-proxy to frontend
+- **FR-023**: Backend MUST handle ai-proxy authentication and rate limiting responses (401, 403, 429 status codes) and propagate errors to frontend
+- **FR-024**: Frontend MUST communicate with backend API endpoints (not directly with ai-proxy)
+- **FR-025**: Frontend MUST store conversation history in-memory only (no localStorage or sessionStorage persistence)
+- **FR-026**: System MUST discard incomplete messages when SSE connection is lost mid-stream, display "Connection lost" error message, and provide retry button
+- **FR-027**: System MUST discard incomplete messages when 429 rate limit error occurs, display "Rate limit exceeded. Please try again." error message, and provide retry button
+- **FR-028**: System MUST display appropriate error messages for 401/403 authentication errors without exposing sensitive information
 
 ### Key Entities
 
@@ -128,7 +148,7 @@ Users want an intuitive and efficient message input experience with modern conve
   - Messages: Ordered collection of all messages in the session
   - State: Active, thinking, idle, or error
 
-- **Reasoning Block**: Represents LLM's thought process output
+- **Reasoning Block** [Post-MVP]: Represents LLM's thought process output
   - Content: The reasoning text generated by the LLM
   - Visibility: Expanded or collapsed
   - Association: Linked to specific LLM response message
@@ -150,7 +170,7 @@ Users want an intuitive and efficient message input experience with modern conve
 - **SC-006**: Message input form auto-resizes correctly for messages up to 20 lines without layout issues
 - **SC-007**: File attachment placeholder button is visible and clicking it shows appropriate "Coming soon" message
 - **SC-008**: Zero critical rendering errors (interface breaking bugs) occur during normal usage patterns
-- **SC-009**: Reasoning text expand/collapse actions complete within 200ms
+- **SC-009**: [Post-MVP] Reasoning text expand/collapse actions complete within 200ms
 - **SC-010**: The interface maintains design fidelity with provided mockup specifications (visual accuracy > 95%)
 
 ### Assumptions
@@ -159,14 +179,15 @@ Users want an intuitive and efficient message input experience with modern conve
 - **LLM Service Availability**: The LLM proxy service is operational and accessible with provided authentication token
 - **Browser Compatibility**: Users are accessing the interface through modern web browsers (last 2 major versions of Chrome, Firefox, Safari, or Edge)
 - **Markdown Complexity**: LLM responses use standard Markdown syntax without extensive nesting or exotic extensions
-- **Session Management**: Single conversation session per user (no need for session persistence or multi-session management in MVP)
+- **Session Management**: Single in-memory conversation session per user (history cleared on page reload, no localStorage/sessionStorage persistence required in MVP)
 - **Authentication**: LLM service authentication is handled via API token in environment configuration (no user authentication required)
 - **Localization**: Interface text is in Russian based on the project source, with potential for internationalization later
 - **Accessibility**: Standard web accessibility practices are sufficient (WCAG 2.1 Level A as baseline)
 
 ### Dependencies
 
-- **LLM Service**: External LLM service must be available via proxy with provided token
+- **ai-proxy Service**: External ai-proxy service (github.com/slaveeks/ai-proxy) must be available with valid API key for x-api-key header authentication
+- **ai-proxy Endpoints**: Both /generate (synchronous) and /stream (NDJSON streaming with Accept: application/x-ndjson) endpoints must be accessible
 - **Markdown Parser Library**: Requires capability to parse Markdown into AST structure
-- **WebSocket or SSE Support**: Server infrastructure must support real-time streaming for progressive response delivery
-- **Environment Configuration**: Secure method to store and access API credentials (.env or similar)
+- **Streaming Protocol**: Backend must use Server-Sent Events (SSE) to proxy NDJSON streaming responses from ai-proxy to frontend
+- **Environment Configuration**: Secure server-side storage for ai-proxy API key (.env file or environment variables)
