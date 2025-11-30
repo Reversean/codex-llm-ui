@@ -1,4 +1,5 @@
 import express, {Request, Response, NextFunction} from 'express'
+import cors from 'cors'
 import dotenv from 'dotenv'
 import chatRouter from './routes/chat.js'
 import healthRouter from './routes/health.js'
@@ -9,12 +10,22 @@ dotenv.config({ path: '../.env' })
 const app = express()
 
 const PORT = process.env["PORT"] || 3000
+const CORS_ORIGINS = process.env["CORS_ORIGINS"]?.split(',') || ['http://localhost:5173']
 
 // ============================================
 // Middleware
 // ============================================
 
 app.use(express.json())
+
+app.use(
+  cors({
+    origin: CORS_ORIGINS,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+)
 
 // ============================================
 // Routes
@@ -47,6 +58,7 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 const server = app.listen(PORT, () => {
   console.log(`🚀 Backend server running on http://localhost:${PORT}`)
   console.log(`📝 Environment: ${process.env["NODE_ENV"] || 'development'}`)
+  console.log(`🔒 CORS origins: ${CORS_ORIGINS.join(', ')}`);
 })
 
 // Graceful shutdown
