@@ -14,6 +14,8 @@ export interface Message {
 export interface ReasoningBlock {
   content: string;
   isExpanded: boolean;
+  startTime: number;
+  endTime?: number | null;
 }
 
 // Session types

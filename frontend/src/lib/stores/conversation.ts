@@ -1,5 +1,5 @@
-import { writable } from 'svelte/store';
-import type { Message } from '../../../../shared/types.js';
+import { writable } from 'svelte/store'
+import type { Message } from '../../../../shared/types.js'
 
 /*
  * Conversation Store
@@ -7,14 +7,14 @@ import type { Message } from '../../../../shared/types.js';
  */
 
 // Main messages store
-export const messages = writable<Message[]>([]);
+export const messages = writable<Message[]>([])
 
 /**
  * Add a new message to the conversation
  * @param message - The message to add
  */
 export function addMessage(message: Message): void {
-  messages.update((msgs) => [...msgs, message]);
+  messages.update((msgs) => [...msgs, message])
 }
 
 /**
@@ -25,7 +25,7 @@ export function addMessage(message: Message): void {
 export function updateMessage(id: string, updates: Partial<Message>): void {
   messages.update((msgs) =>
     msgs.map((msg) => (msg.id === id ? { ...msg, ...updates } : msg))
-  );
+  )
 }
 
 /**
@@ -36,7 +36,7 @@ export function updateMessage(id: string, updates: Partial<Message>): void {
 export function appendToMessage(id: string, content: string): void {
   messages.update((msgs) =>
     msgs.map((msg) => (msg.id === id ? { ...msg, content: msg.content + content } : msg))
-  );
+  )
 }
 
 /**
@@ -55,12 +55,32 @@ export function updateMessageReasoning(id: string, reasoningContent: string): vo
               ? msg.reasoning.content + reasoningContent
               : reasoningContent,
             isExpanded: true,
+            startTime: msg.reasoning
+              ? msg.reasoning.startTime
+              : Date.now(),
           },
-        };
+        }
       }
-      return msg;
+      return msg
     })
-  );
+  )
+}
+
+export function stopMessageReasoning(id: string): void {
+  messages.update((msgs) =>
+    msgs.map((msg) => {
+      if (msg.id === id && msg.reasoning) {
+        return {
+          ...msg,
+          reasoning: {
+            ...msg.reasoning,
+            endTime: Date.now(),
+          },
+        }
+      }
+      return msg
+    })
+  )
 }
 
 /**
@@ -77,16 +97,16 @@ export function toggleReasoningExpanded(id: string): void {
             ...msg.reasoning,
             isExpanded: !msg.reasoning.isExpanded,
           },
-        };
+        }
       }
-      return msg;
+      return msg
     })
-  );
+  )
 }
 
 /**
  * Clear all messages (reset conversation)
  */
 export function clearMessages(): void {
-  messages.set([]);
+  messages.set([])
 }
