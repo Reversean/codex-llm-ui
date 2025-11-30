@@ -1,0 +1,65 @@
+import express, {Request, Response, NextFunction} from 'express'
+import dotenv from 'dotenv'
+import healthRouter from './routes/health.js'
+
+// Load environment variables
+dotenv.config({ path: '../.env' })
+
+const app = express()
+
+const PORT = process.env["PORT"] || 3000
+
+// ============================================
+// Middleware
+// ============================================
+
+app.use(express.json())
+
+// ============================================
+// Routes
+// ============================================
+
+app.use('/health', healthRouter)
+
+// ============================================
+// Error Handling Middleware
+// ============================================
+
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('[ERROR]', err);
+
+  const isDevelopment = process.env["NODE_ENV"] !== 'production';
+
+  res.status(500).json({
+    error: isDevelopment ? err.message : 'Internal Server Error',
+    code: 'INTERNAL_ERROR',
+    timestamp: Date.now(),
+    ...(isDevelopment && { stack: err.stack }),
+  })
+})
+
+// ============================================
+// Server Startup
+// ============================================
+
+const server = app.listen(PORT, () => {
+  console.log(`🚀 Backend server running on http://localhost:${PORT}`)
+  console.log(`📝 Environment: ${process.env["NODE_ENV"] || 'development'}`)
+})
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
