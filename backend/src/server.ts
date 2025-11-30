@@ -1,5 +1,6 @@
 import express, {Request, Response, NextFunction} from 'express'
 import dotenv from 'dotenv'
+import chatRouter from './routes/chat.js'
 import healthRouter from './routes/health.js'
 
 // Load environment variables
@@ -20,6 +21,7 @@ app.use(express.json())
 // ============================================
 
 app.use('/health', healthRouter)
+app.use('/chat', chatRouter)
 
 // ============================================
 // Error Handling Middleware
