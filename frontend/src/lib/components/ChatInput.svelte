@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type {Action} from "svelte/action"
-  import SendIcon from "$lib/components/SendIcon.svelte";
-  import AttachIcon from "$lib/components/AttachIcon.svelte";
+  import type {Action} from 'svelte/action'
+  import AttachIcon from '../assets/attach-icon.svg'
+  import SendIcon from '../assets/send-icon.svg'
 
   let {onSubmit, disabled = false}: { onSubmit: (message: string) => void; disabled?: boolean } = $props()
 
@@ -55,11 +55,11 @@
 
     <div class="chat-input-buttons-container">
       <button class="attach-button" type="button">
-        <AttachIcon />
+        <img src={AttachIcon} alt='attach'/>
         <span class="attach">Attach</span>
       </button>
       <button onclick={handleSubmit} {disabled} class="send-button" type="button">
-        <SendIcon />
+        <img src={SendIcon} alt='send'/>
         <span class="send">Send</span>
       </button>
     </div>
