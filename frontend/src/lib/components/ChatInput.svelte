@@ -69,12 +69,11 @@
 <style>
   .chat-input-wrapper {
     width: 100%;
-    /*margin: 0 auto;*/
     position: relative;
+    height: 179px;
   }
 
   .chat-input-shadow {
-    /*vertical-align:top;*/
     position: absolute;
     width: 100%;
     height: 93px;
@@ -84,6 +83,7 @@
   .chat-input-container {
     position: absolute;
     width: 100%;
+    bottom: 0;
     min-height: 100px;
     display: flex;
     flex-direction: column;
@@ -91,7 +91,6 @@
     align-items: flex-start;
     gap: 22px;
     padding: 14px 16px;
-    margin-top: 79px;
     border-radius: 16px;
     border: solid 1px #191919;
     background-color: #0e0e0e;

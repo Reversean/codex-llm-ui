@@ -2,6 +2,7 @@
   import type { Message } from '../../../../shared/types'
   import { toggleReasoningExpanded } from '../stores/conversation'
   import chevron from '$lib/assets/chevron-down.svg'
+  import MarkdownRenderer from '$lib/components/MarkdownRenderer.svelte'
 
   let { message }: { message: Message } = $props()
 
@@ -15,14 +16,6 @@
     if (!reasoning) return 42
     const end_time = reasoning.endTime || Date.now()
     return end_time - reasoning.startTime
-  })
-
-  const renderedReasoning = $derived.by(() => {
-    return message.reasoning?.content
-  })
-
-  const renderedContent = $derived.by(() => {
-    return message.content
   })
 
   function handleReasoningToggle() {
@@ -53,7 +46,7 @@
       </button>
       {#if message.reasoning.isExpanded}
       <span class="reasoning-content">
-        {renderedReasoning}
+        <MarkdownRenderer content={message.reasoning?.content || ''} />
       </span>
       {/if}
     </div>
@@ -61,11 +54,7 @@
     <span class='thinking-indicator'>Thinking...</span>
   {/if}
   <span class="message-content">
-    {#if isUser}
-      {message.content}
-    {:else}
-      {@html renderedContent}
-    {/if}
+    <MarkdownRenderer content={message.content} />
   </span>
 </div>
 
