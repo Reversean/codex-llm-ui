@@ -1,6 +1,6 @@
 import {Router, Request, Response} from 'express'
 import {ChatRequest} from "../../../shared/types"
-import {generateLLMResponse} from "../services/llm"
+import {generateLLMResponse, streamLLMResponse} from "../services/llm"
 
 const router = Router()
 
@@ -36,6 +36,89 @@ router.post('/generate', async (req: Request, res: Response) => {
       code: 'INTERNAL_ERROR',
       timestamp: Date.now(),
     })
+  }
+})
+
+// Helper function for SSE events
+function sendSSEEvent(res: Response, event: string, data: any): void {
+  res.write(`event: ${event}\n`)
+  res.write(`data: ${JSON.stringify(data)}\n\n`)
+}
+
+// Streaming endpoint
+router.post('/stream', async (req: Request, res: Response) => {
+  try {
+    const { message } = req.body as ChatRequest
+
+    if (!message || message.trim() === '') {
+      res.status(400).json({
+        error: 'Message is required',
+        code: 'INVALID_REQUEST',
+        timestamp: Date.now(),
+      })
+      return
+    }
+
+    // Setup SSE headers
+    res.setHeader('Content-Type', 'text/event-stream')
+    res.setHeader('Cache-Control', 'no-cache')
+    res.setHeader('Connection', 'keep-alive')
+    res.setHeader('X-Accel-Buffering', 'no')
+
+    const messageId = generateMessageId()
+
+    // Send initial message event
+    sendSSEEvent(res, 'message', {
+      id: messageId,
+      content: '',
+      sender: 'llm',
+      timestamp: Date.now(),
+      status: 'streaming',
+    })
+
+    // Stream from LLM
+    await streamLLMResponse(message, (event) => {
+      switch (event.type) {
+        case 'text-delta':
+          sendSSEEvent(res, 'text-delta', {
+            type: 'chunk',
+            content: event.data,
+            messageId,
+          })
+          break
+        case 'reasoning-delta':
+          sendSSEEvent(res, 'reasoning-delta', {
+            type: 'reasoning',
+            content: event.data,
+            messageId,
+          })
+          break
+        case 'done':
+          sendSSEEvent(res, 'done', {
+            type: 'done',
+            content: '',
+            messageId,
+          })
+          res.end()
+          break
+        case 'error':
+          sendSSEEvent(res, 'error', {
+            type: 'error',
+            content: event.data,
+            messageId,
+          })
+          res.end()
+          break
+      }
+    })
+  } catch (error) {
+    console.error('[CHAT STREAM ERROR]', error)
+    sendSSEEvent(res, 'error', {
+      error: error instanceof Error ? error.message : 'Internal Server Error',
+      code: 'INTERNAL_ERROR',
+      timestamp: Date.now(),
+    })
+    res.end()
   }
 })
 
