@@ -35,9 +35,13 @@
     try {
       const llmResponse = await sendMessage(userMessage)
       setThinking(false)
-      appendToMessage(llmMsg.id, llmResponse.message)
+      updateMessage(llmMsg.id, {
+        content: llmResponse.message,
+        status: 'complete',
+      })
     } catch (error) {
       handleError(llmMsg.id, error as Error)
+      setThinking(false)
     }
   }
 
@@ -117,6 +121,107 @@
   // for (let i: number = 5; i < 42; i++) {
   //   addMessage({id: i.toString(), content: `test${i}`, sender: 'llm', timestamp: Date.now(), status: 'error'})
   // }
+
+  // ========== MARKDOWN RENDERING TEST ==========
+  // Uncomment the block below to test all Markdown features
+  //
+  // addMessage({
+  //   id: 'md-test-user',
+  //   content: 'Show me examples of all Markdown features',
+  //   sender: 'user',
+  //   timestamp: Date.now(),
+  //   status: 'complete',
+  // })
+  //
+  // addMessage({
+  //   id: 'md-test-llm',
+  //   content: `# Markdown Features Demo
+  //
+  // ## Inline Formatting
+  //
+  // Here are the **bold text**, *italic text*, ~~strikethrough text~~, and \`inline code\` examples.
+  //
+  // You can also combine them: **bold and _italic_**, or ***bold italic***.
+  //
+  // ## Headers
+  //
+  // ### Level 3 Header
+  // #### Level 4 Header
+  // ##### Level 5 Header
+  // ###### Level 6 Header
+  //
+  // ## Lists
+  //
+  // Unordered list:
+  // - First item
+  // - Second item
+  //   - Nested item
+  //   - Another nested item
+  // - Third item
+  //
+  // Ordered list:
+  // 1. First step
+  // 2. Second step
+  // 3. Third step
+  //
+  // ## Links
+  //
+  // Check out [Svelte](https://svelte.dev) and [TypeScript](https://www.typescriptlang.org/).
+  //
+  // ## Code Blocks
+  //
+  // JavaScript example:
+  // \`\`\`javascript
+  // function greet(name) {
+  //   console.log(\`Hello, \${name}!\`);
+  //   return true;
+  // }
+  // \`\`\`
+  //
+  // TypeScript example:
+  // \`\`\`typescript
+  // interface User {
+  //   id: number;
+  //   name: string;
+  // }
+  //
+  // const user: User = { id: 1, name: "Alice" };
+  // \`\`\`
+  //
+  // Python example:
+  // \`\`\`python
+  // def fibonacci(n):
+  //     if n <= 1:
+  //         return n
+  //     return fibonacci(n-1) + fibonacci(n-2)
+  // \`\`\`
+  //
+  // ## Tables
+  //
+  // | Feature | Supported | Notes |
+  // | ------- | --------- | ----- |
+  // | Bold | ✅ Yes | Use **text** |
+  // | Italic | ✅ Yes | Use *text* |
+  // | Strikethrough | ✅ Yes | Use ~~text~~ |
+  // | Code | ✅ Yes | Use \`code\` |
+  // | Tables | ✅ Yes | GFM syntax |
+  //
+  // ## Blockquotes
+  //
+  // > This is a blockquote.
+  // > It can span multiple lines.
+  // >
+  // > And contain other Markdown elements like **bold** and *italic*.
+  //
+  // ## Horizontal Rule
+  //
+  // ---
+  //
+  // That's all the Markdown features we support!`,
+  //   sender: 'llm',
+  //   timestamp: Date.now(),
+  //   status: 'complete',
+  // })
 </script>
 
 <div class="chat-container">
@@ -134,21 +239,27 @@
     width: 600px;
     height: 100vh;
     max-height: 100vh;
-    margin: 0 auto 0 auto;
-    padding: 0 0 107px 0;
+    margin: 0 auto;
+    overflow: hidden;
   }
 
   .chat-message-list {
-    position: relative;
-    overflow-y: scroll;
-    width: 100%;
-    height: 100%;
-    padding-top: 87px;
+    position: absolute;
+    top: 87px;
+    bottom: 107px;
+    left: 0;
+    right: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 124px;
   }
 
   .chat-input {
-    position: relative;
-    width: 100%;
-    bottom: 107px;
+    position: fixed;
+    bottom: 57px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    z-index: 10;
   }
 </style>

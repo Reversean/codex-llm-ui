@@ -69,20 +69,25 @@
 <style>
   .chat-input-wrapper {
     width: 100%;
-    /*margin: 0 auto;*/
     position: relative;
+    height: 179px;
   }
 
   .chat-input-shadow {
-    /*vertical-align:top;*/
     position: absolute;
-    width: 100%;
+    bottom: 100px;
+    left: 0;
+    right: 0;
     height: 93px;
     background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), var(--color-bg));
+    pointer-events: none;
   }
 
   .chat-input-container {
     position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     width: 100%;
     min-height: 100px;
     display: flex;
@@ -91,7 +96,6 @@
     align-items: flex-start;
     gap: 22px;
     padding: 14px 16px;
-    margin-top: 79px;
     border-radius: 16px;
     border: solid 1px #191919;
     background-color: #0e0e0e;

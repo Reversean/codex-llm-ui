@@ -133,8 +133,8 @@ This is a **web application** with separate frontend and backend:
 
 - [x] T027 [P] [US1] Create frontend/src/lib/components/MessageBubble.svelte (user message, right-aligned, bubble styling)
 - [x] T028 [P] [US1] Create frontend/src/lib/components/ChatInput.svelte (textarea, auto-resize, Enter to submit, validation)
-- [ ] T029 [P] [US1] Implement Markdown rendering in MessageBubble.svelte using marked library with AST pattern (FR-018)
-- [ ] T030 [P] [US1] Add syntax highlighting for code blocks using highlight.js in MessageBubble
+- [x] T029 [P] [US1] Implement Markdown rendering with MarkdownRenderer.svelte using micromark library with AST pattern (FR-018)
+- [x] T030 [P] [US1] Add syntax highlighting for code blocks using highlight.js with 13 languages registered
 - [x] T031 [US1] Create frontend/src/lib/components/MessageList.svelte (scrollable container, renders MessageBubble)
 - [x] T032 [US1] Implement backend/src/routes/chat.ts with POST /chat/generate endpoint (sync mode)
 - [x] T033 [US1] Implement backend/src/services/llm.ts LLM proxy client (generateLLMResponse)

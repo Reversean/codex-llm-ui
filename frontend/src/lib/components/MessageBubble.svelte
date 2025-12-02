@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Message } from '../../../../shared/types'
   import { toggleReasoningExpanded } from '../stores/conversation'
+  import MarkdownRenderer from './MarkdownRenderer.svelte'
   import chevron from '$lib/assets/chevron-down.svg'
 
   let { message }: { message: Message } = $props()
@@ -52,21 +53,21 @@
         </span>
       </button>
       {#if message.reasoning.isExpanded}
-      <span class="reasoning-content">
-        {renderedReasoning}
-      </span>
+      <div class="reasoning-content">
+        <MarkdownRenderer content={renderedReasoning || ''} />
+      </div>
       {/if}
     </div>
   {:else if isPending}
     <span class='thinking-indicator'>Thinking...</span>
   {/if}
-  <span class="message-content">
+  <div class="message-content">
     {#if isUser}
       {message.content}
     {:else}
-      {@html renderedContent}
+      <MarkdownRenderer content={renderedContent} />
     {/if}
-  </span>
+  </div>
 </div>
 
 <style>
