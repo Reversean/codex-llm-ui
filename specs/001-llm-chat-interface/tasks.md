@@ -82,17 +82,17 @@ This is a **web application** with separate frontend and backend:
 
 - [x] T021 [P] [US1] Component test for ChatInput in frontend/tests/unit/components/ChatInput.test.ts
 - [x] T022 [P] [US1] Component test for MessageList in frontend/tests/unit/components/MessageList.test.ts
-- [ ] T023 [P] [US1] Component test for MessageBubble: verify user/LLM rendering, styling in frontend/tests/unit/components/MessageBubble.test.ts
-- [ ] T024 [P] [US1] Component test for Markdown rendering: verify headers, lists, code blocks display correctly
-- [ ] T025 [P] [US1] Integration test for POST /api/chat: validates request body, returns SSE stream in backend/tests/integration/chat.test.ts
+- [x] T023 [P] [US1] Component test for MessageBubble: verify user/LLM rendering, styling in frontend/tests/unit/components/MessageBubble.test.ts
+- [x] T024 [P] [US1] Component test for Markdown rendering: verify headers, lists, code blocks display correctly
+- [x] T025 [P] [US1] Integration test for POST /api/chat: validates request body, returns SSE stream in backend/tests/integration/chat.test.ts
 - [x] T026 [P] [US1] Store tests for conversation store in frontend/tests/unit/stores/conversation.test.ts
 
 ### Implementation for User Story 1
 
 - [x] T027 [P] [US1] Create frontend/src/lib/components/MessageBubble.svelte (user message, right-aligned, bubble styling)
 - [x] T028 [P] [US1] Create frontend/src/lib/components/ChatInput.svelte (textarea, auto-resize, Enter to submit, validation)
-- [ ] T029 [P] [US1] Implement Markdown rendering in MessageBubble.svelte using marked library with AST pattern (FR-018)
-- [ ] T030 [P] [US1] Add syntax highlighting for code blocks using highlight.js in MessageBubble
+- [x] T029 [P] [US1] Implement Markdown rendering in MessageBubble.svelte using marked library with AST pattern (FR-018)
+- [x] T030 [P] [US1] Add syntax highlighting for code blocks using highlight.js in MessageBubble
 - [x] T031 [US1] Create frontend/src/lib/components/MessageList.svelte (scrollable container, renders MessageBubble)
 - [x] T032 [US1] Implement backend/src/routes/chat.ts with POST /api/chat endpoint
 - [x] T033 [US1] Implement backend/src/services/llm.ts LLM proxy client with SSE streaming
