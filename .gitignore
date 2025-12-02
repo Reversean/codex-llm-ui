@@ -42,6 +42,11 @@ Thumbs.db
 .cache/
 .temp/
 
+# Build outputs (TypeScript/Node.js)
+dist/
+build/
+*.tsbuildinfo
+
 # Project-specific
 .claude/
 .specify/*

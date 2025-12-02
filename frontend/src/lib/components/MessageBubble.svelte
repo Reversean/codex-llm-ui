@@ -1,6 +1,9 @@
 <script lang="ts">
 	import type { Message } from '../../../../shared/types.js';
 	import { toggleReasoningExpanded } from '$lib/stores/conversation';
+	import { marked } from 'marked';
+	import hljs from 'highlight.js';
+	import { onMount } from 'svelte';
 
 	let { message }: { message: Message } = $props();
 
@@ -9,9 +12,51 @@
 	const isPending = $derived(message.status === 'pending');
 	const isError = $derived(message.status === 'error');
 
+	// Markdown rendering with AST pattern (FR-018)
+	const renderedContent = $derived.by(() => {
+		if (isUser || !message.content) {
+			return message.content;
+		}
+
+		// Configure marked for syntax highlighting with highlight.js
+		marked.setOptions({
+			highlight: (code: string, lang: string) => {
+				if (lang && hljs.getLanguage(lang)) {
+					try {
+						return hljs.highlight(code, { language: lang }).value;
+					} catch (e) {
+						console.warn('Syntax highlighting failed:', e);
+					}
+				}
+				return hljs.highlightAuto(code).value;
+			},
+			breaks: true,
+			gfm: true
+		});
+
+		try {
+			// Parse Markdown to HTML using AST pattern
+			return marked.parse(message.content, { async: false }) as string;
+		} catch (e) {
+			console.error('Markdown parsing failed:', e);
+			return message.content; // Fallback to raw text
+		}
+	});
+
 	function handleReasoningToggle() {
 		toggleReasoningExpanded(message.id);
 	}
+
+	// Ensure highlight.js styles are applied after mount
+	onMount(() => {
+		// Re-apply highlight.js to any code blocks that were just rendered
+		const codeBlocks = document.querySelectorAll('.message-content pre code');
+		codeBlocks.forEach((block) => {
+			if (block instanceof HTMLElement && !block.classList.contains('hljs')) {
+				hljs.highlightElement(block);
+			}
+		});
+	});
 </script>
 
 <div
@@ -44,7 +89,11 @@
 		{/if}
 
 		<div class="message-content">
-			{message.content}
+			{#if isUser}
+				{message.content}
+			{:else}
+				{@html renderedContent}
+			{/if}
 			{#if isStreaming}
 				<span class="cursor" data-testid="streaming-cursor"></span>
 			{/if}
@@ -166,6 +215,99 @@
 	.message-content {
 		line-height: var(--line-height-normal);
 		white-space: pre-wrap;
+	}
+
+	/* Markdown styling for LLM responses */
+	.message-content :global(h1),
+	.message-content :global(h2),
+	.message-content :global(h3),
+	.message-content :global(h4),
+	.message-content :global(h5),
+	.message-content :global(h6) {
+		margin-top: var(--spacing-md);
+		margin-bottom: var(--spacing-sm);
+		font-weight: 600;
+	}
+
+	.message-content :global(h1) {
+		font-size: 1.75em;
+	}
+	.message-content :global(h2) {
+		font-size: 1.5em;
+	}
+	.message-content :global(h3) {
+		font-size: 1.25em;
+	}
+
+	.message-content :global(p) {
+		margin-bottom: var(--spacing-sm);
+	}
+
+	.message-content :global(ul),
+	.message-content :global(ol) {
+		margin-left: var(--spacing-lg);
+		margin-bottom: var(--spacing-sm);
+	}
+
+	.message-content :global(li) {
+		margin-bottom: var(--spacing-xs);
+	}
+
+	.message-content :global(code) {
+		background-color: rgba(0, 0, 0, 0.05);
+		padding: 2px 6px;
+		border-radius: 3px;
+		font-family: 'Courier New', Courier, monospace;
+		font-size: 0.9em;
+	}
+
+	.message-content :global(pre) {
+		background-color: #1e1e1e;
+		color: #d4d4d4;
+		padding: var(--spacing-md);
+		border-radius: var(--radius-sm);
+		overflow-x: auto;
+		margin-bottom: var(--spacing-sm);
+	}
+
+	.message-content :global(pre code) {
+		background-color: transparent;
+		padding: 0;
+		font-family: 'Courier New', Courier, monospace;
+		font-size: 0.9em;
+		line-height: 1.5;
+	}
+
+	.message-content :global(blockquote) {
+		border-left: 3px solid var(--color-reasoning-border);
+		padding-left: var(--spacing-md);
+		margin-left: 0;
+		margin-bottom: var(--spacing-sm);
+		color: var(--color-reasoning-text);
+		font-style: italic;
+	}
+
+	.message-content :global(a) {
+		color: #0066cc;
+		text-decoration: underline;
+	}
+
+	.message-content :global(a:hover) {
+		color: #0052a3;
+	}
+
+	.message-content :global(strong) {
+		font-weight: 600;
+	}
+
+	.message-content :global(em) {
+		font-style: italic;
+	}
+
+	.message-content :global(hr) {
+		border: none;
+		border-top: 1px solid rgba(0, 0, 0, 0.1);
+		margin: var(--spacing-md) 0;
 	}
 
 	.cursor {
