@@ -37,6 +37,7 @@
     "npm": ">=10.0.0"
   },
   "dependencies": {
-    "@fontsource-variable/inter": "^5.2.8"
+    "@fontsource-variable/inter": "^5.2.8",
+    "jetbrains-mono": "^1.0.6"
   }
 }

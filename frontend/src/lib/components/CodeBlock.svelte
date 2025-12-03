@@ -107,14 +107,14 @@
   .copy-button {
     display: flex;
     flex-direction: row;
+    justify-content: flex-start;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     background: none;
+    border-radius: 4px;
     border: none;
     cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
+    font-family: var(--font-family);
   }
 
   .copy-button:hover {
@@ -145,7 +145,8 @@
   }
 
   .code-content code {
-    font-family: 'JetBrains Mono', monospace;
+    padding: 0;
+    font-family: var(--font-family-code);
     font-size: 12px;
     font-weight: normal;
     font-stretch: normal;
@@ -154,5 +155,6 @@
     letter-spacing: normal;
     text-align: left;
     color: #e1e4e8;
+    background: none;
   }
 </style>

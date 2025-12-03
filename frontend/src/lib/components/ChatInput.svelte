@@ -100,6 +100,7 @@
     width: 100%;
     max-height: 90px;
     resize: none;
+    font-family: var(--font-family);
     font-size: 14px;
     font-weight: normal;
     font-stretch: normal;
@@ -158,6 +159,10 @@
     padding: 3px 11px;
     border-radius: 16px;
     background-color: #fff;
+  }
+
+  .attach {
+    font-family: var(--font-family);
     font-size: 14px;
     font-weight: 500;
     font-stretch: normal;
@@ -165,14 +170,18 @@
     line-height: 1.57;
     letter-spacing: normal;
     text-align: left;
-
-  }
-
-  .attach {
     color: #777;
   }
 
   .send {
+    font-family: var(--font-family);
+    font-size: 14px;
+    font-weight: 500;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.57;
+    letter-spacing: normal;
+    text-align: left;
     color: var(--black);
   }
 </style>

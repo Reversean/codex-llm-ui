@@ -110,9 +110,9 @@
   }
 
   .message-content {
-    min-width: 300px;
-    max-width: 454px;
-    flex-grow: 0;
+    /*min-width: 300px;*/
+    /*flex-grow: 0;*/
+    width: 100%;
     font-size: 14px;
     font-weight: normal;
     font-stretch: normal;
