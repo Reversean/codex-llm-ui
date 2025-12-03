@@ -23,9 +23,19 @@ export async function generateLLMResponse(
   return res.json();
 }
 
+type LLMStreamEventType =
+  'start' |
+  'text-start' |
+  'text-delta' |
+  'text-end' |
+  'reasoning-start' |
+  'reasoning-delta' |
+  'reasoning-end' |
+  'finish'
+
 interface LLMStreamEvent {
-  type: 'text-delta' | 'reasoning-delta' | 'done' | 'error'
-  data: string
+  type: LLMStreamEventType
+  delta?: string | null
 }
 
 export async function streamLLMResponse(
@@ -57,7 +67,6 @@ export async function streamLLMResponse(
     while (true) {
       const { done, value } = await reader.read()
       if (done) {
-        onEvent({ type: 'done', data: '' })
         break
       }
 
@@ -66,26 +75,16 @@ export async function streamLLMResponse(
 
       for (const line of lines) {
         try {
-          const event = JSON.parse(line)
-          if (event.type === 'text-delta') {
-            onEvent({ type: 'text-delta', data: event.delta || '' })
-          } else if (event.type === 'reasoning-delta') {
-            onEvent({ type: 'reasoning-delta', data: event.delta || '' })
-          } else if (event.type === 'error') {
-            onEvent({ type: 'error', data: event.message || 'Unknown error' })
-          }
-        } catch (parseError) {
-          console.error('[NDJSON PARSE ERROR]', parseError)
-          // Continue processing other lines
+          const event: LLMStreamEvent = JSON.parse(line)
+          onEvent(event)
+        } catch (error) {
+          console.error('[NDJSON PARSE ERROR]', error)
         }
       }
     }
   } catch (error) {
     console.error('[STREAM ERROR]', error)
-    onEvent({
-      type: 'error',
-      data: error instanceof Error ? error.message : 'Stream error'
-    })
+    throw error
   } finally {
     reader.releaseLock()
   }

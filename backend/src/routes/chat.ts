@@ -1,6 +1,6 @@
-import {Router, Request, Response} from 'express'
-import {ChatRequest} from "../../../shared/types"
-import {generateLLMResponse, streamLLMResponse} from "../services/llm"
+import { Router, Request, Response } from 'express'
+import { ChatRequest } from '../../../shared/types'
+import { generateLLMResponse, streamLLMResponse } from '../services/llm'
 
 const router = Router()
 
@@ -79,32 +79,27 @@ router.post('/stream', async (req: Request, res: Response) => {
     // Stream from LLM
     await streamLLMResponse(message, (event) => {
       switch (event.type) {
-        case 'text-delta':
-          sendSSEEvent(res, 'text-delta', {
-            type: 'chunk',
-            content: event.data,
+        case "start":
+        case "reasoning-start":
+        case "reasoning-end":
+        case "text-start":
+        case "text-end":
+          sendSSEEvent(res, event.type, {
+            type: event.type,
             messageId,
           })
           break
-        case 'reasoning-delta':
-          sendSSEEvent(res, 'reasoning-delta', {
-            type: 'reasoning',
-            content: event.data,
+        case "reasoning-delta":
+        case "text-delta":
+          sendSSEEvent(res, event.type, {
+            type: event.type,
+            content: event.delta || '',
             messageId,
           })
           break
-        case 'done':
-          sendSSEEvent(res, 'done', {
-            type: 'done',
-            content: '',
-            messageId,
-          })
-          res.end()
-          break
-        case 'error':
-          sendSSEEvent(res, 'error', {
-            type: 'error',
-            content: event.data,
+        case "finish":
+          sendSSEEvent(res, event.type, {
+            type: event.type,
             messageId,
           })
           res.end()

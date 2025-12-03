@@ -33,14 +33,21 @@ export async function sendMessage(message:string): Promise<ChatRequest> {
   }
 }
 
+export interface StreamCallbacks {
+  onStart?: () => void
+  onTextStart?: () => void
+  onTextDelta?: (content: string) => void
+  onTextEnd?: () => void
+  onReasoningStart?: () => void
+  onReasoningDelta?: (content: string) => void
+  onReasoningEnd?: () => void
+  onFinish?: () => void
+  onError?: (error: string) => void
+}
+
 export async function sendMessageStream(
   message: string,
-  callbacks: {
-    onTextDelta: (content: string) => void
-    onReasoningDelta: (content: string) => void
-    onDone: () => void
-    onError: (error: string) => void
-  }
+  callbacks: StreamCallbacks
 ): Promise<void> {
   try {
     const response = await fetch(`${API_BASE_URL}/chat/stream`, {
@@ -85,17 +92,32 @@ export async function sendMessageStream(
           const data = JSON.parse(eventData)
 
           switch (eventType) {
+            case 'start':
+              callbacks.onStart?.()
+              break
+            case 'text-start':
+              callbacks.onTextStart?.()
+              break
             case 'text-delta':
-              callbacks.onTextDelta(data.content || '')
+              callbacks.onTextDelta?.(data.content || '')
+              break
+            case 'text-end':
+              callbacks.onTextEnd?.()
+              break
+            case 'reasoning-start':
+              callbacks.onReasoningStart?.()
               break
             case 'reasoning-delta':
-              callbacks.onReasoningDelta(data.content || '')
+              callbacks.onReasoningDelta?.(data.content || '')
               break
-            case 'done':
-              callbacks.onDone()
+            case 'reasoning-end':
+              callbacks.onReasoningEnd?.()
+              break
+            case 'finish':
+              callbacks.onFinish?.()
               return
             case 'error':
-              callbacks.onError(data.error || 'Unknown error')
+              callbacks.onError?.(data.error || 'Unknown error')
               return
           }
         } catch (parseError) {
@@ -106,7 +128,7 @@ export async function sendMessageStream(
   } catch (error) {
     if (error instanceof Error) {
       console.error('Streaming error:', error)
-      callbacks.onError(error.message)
+      callbacks.onError?.(error.message)
     }
     throw error
   }
