@@ -14,7 +14,7 @@ export interface Message {
 export interface ReasoningBlock {
   content: string;
   isExpanded: boolean;
-  startTime: number;
+  startTime?: number | null;
   endTime?: number | null;
 }
 
