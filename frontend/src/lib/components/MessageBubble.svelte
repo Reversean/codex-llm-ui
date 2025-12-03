@@ -13,9 +13,16 @@
 
   const reasoningElapsed = $derived.by(() => {
     const reasoning = message.reasoning
-    if (!reasoning) return 42
+    if (!reasoning || !reasoning.startTime) return null
     const end_time = reasoning.endTime || Date.now()
-    return end_time - reasoning.startTime
+    return Math.round((end_time - reasoning.startTime) / 1000)
+  })
+
+  const reasoningLabel = $derived.by(() => {
+    const reasoning = message.reasoning
+    if (!reasoning || !reasoning.startTime) return 'Thought'
+    if (!reasoning.endTime) return 'Thinking...'
+    return `Thought for ${reasoningElapsed} seconds`
   })
 
   function handleReasoningToggle() {
@@ -36,11 +43,12 @@
     <div class="thinking-container">
       <button class='reasoning-toggle' onclick={handleReasoningToggle} type="button">
         <span class='thinking-indicator' data-testid='thinking-indicator'>
-          {isPending ? 'Thinking...' : `Thought for ${reasoningElapsed} seconds`}
+          {reasoningLabel}
           <img
             src={chevron}
             alt='reasoning-toggle'
             class='reasoning-toggle-icon'
+            class:expanded={message.reasoning.isExpanded}
           />
         </span>
       </button>
@@ -60,6 +68,7 @@
 
 <style>
   .message-bubble {
+    max-width: 486px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -96,6 +105,14 @@
     background: none;
     border: none;
     color: #777;
+  }
+
+  .reasoning-toggle-icon {
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .reasoning-toggle-icon.expanded {
+    transform: rotate(180deg);
   }
 
   .reasoning-content {

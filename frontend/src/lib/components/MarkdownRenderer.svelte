@@ -125,7 +125,7 @@
   .markdown-content :global(h4),
   .markdown-content :global(h5),
   .markdown-content :global(h6) {
-    margin: 24px 0 16px 0;
+    margin-top: 24px;
     font-weight: 600;
     line-height: 1.25;
   }
@@ -180,7 +180,6 @@
   /* Lists */
   .markdown-content :global(ul),
   .markdown-content :global(ol) {
-    margin-bottom: 16px;
     padding-left: 16px;
   }
 
@@ -227,7 +226,7 @@
 
   /* Horizontal rule */
   .markdown-content :global(hr) {
-    margin: 24px 0;
+    margin: 212x 0;
     border: none;
     width: 100%;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
