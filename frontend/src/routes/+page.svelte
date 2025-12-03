@@ -50,13 +50,13 @@
     setThinking(false)
   }
 
-  addMessage({
-    id: 'md-test-user',
-    content: 'Show me examples of all Markdown features',
-    sender: 'user',
-    timestamp: Date.now(),
-    status: 'complete',
-  })
+  // addMessage({
+  //   id: 'md-test-user',
+  //   content: 'Show me examples of all Markdown features',
+  //   sender: 'user',
+  //   timestamp: Date.now(),
+  //   status: 'complete',
+  // })
 
   addMessage({
     id: 'md-test-llm',
@@ -70,6 +70,8 @@
 
   ## Headers
 
+  # Level 1 Header
+  ## Level 2 Header
   ### Level 3 Header
   #### Level 4 Header
   ##### Level 5 Header

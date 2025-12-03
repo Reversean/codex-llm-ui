@@ -43,13 +43,6 @@
         return `<tr>${node.children?.map(renderTableCell).join('') || ''}</tr>`
       case 'thematicBreak':
         return '<hr/>'
-      case 'code': {
-        const highlighted = highlightCode(node.value || '', node.lang)
-
-        const a = ``
-
-        return `<pre><code class="hljs language-${node.lang || 'plaintext'}">${highlighted}</code></pre>`
-      }
       default:
         return ''
     }
@@ -66,7 +59,7 @@
       case 'delete':
         return `<del>${node.children?.map(renderInline).join('') || ''}</del>`
       case 'inlineCode':
-        return `<code class="inline-code">${node.children?.map(renderInline).join('') || ''}</code>`
+        return `<code class="inline-code">${node.value}</code>`
       case 'link': {
         const linkText = node.children?.map(renderInline).join('') || ''
         return `<a href="${node.url}">${linkText}</a>`
@@ -95,7 +88,7 @@
 <div class="markdown-content">
   {#each ast.children || [] as node, index (index)}
     {#if node.type === 'code'}
-      <CodeBlock code={node.value || ''} language={node.lang || undefined} />
+      <CodeBlock code={node.value || ''} language={node.lang || undefined}/>
     {:else}
       {@html renderNode(node)}
     {/if}
@@ -113,5 +106,130 @@
     gap: 26px;
     padding: 0;
     border-radius: 15px;
+  }
+
+  /* Typography */
+  .markdown-content :global(p) {
+    margin: 0 0 16px 0;
+    line-height: 1.57;
+  }
+
+  .markdown-content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  /* Headers */
+  .markdown-content :global(h1),
+  .markdown-content :global(h2),
+  .markdown-content :global(h3),
+  .markdown-content :global(h4),
+  .markdown-content :global(h5),
+  .markdown-content :global(h6) {
+    margin: 24px 0 16px 0;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .markdown-content :global(h1:first-child),
+  .markdown-content :global(h2:first-child),
+  .markdown-content :global(h3:first-child),
+  .markdown-content :global(h4:first-child),
+  .markdown-content :global(h5:first-child),
+  .markdown-content :global(h6:first-child) {
+    margin-top: 0;
+  }
+
+  .markdown-content :global(h1) { font-size: 28px; }
+  .markdown-content :global(h2) { font-size: 24px; }
+  .markdown-content :global(h3) { font-size: 20px; }
+  .markdown-content :global(h4) { font-size: 16px; }
+  .markdown-content :global(h5) { font-size: 14px; }
+  .markdown-content :global(h6) { font-size: 12px; }
+
+  /* Inline formatting */
+  .markdown-content :global(strong) {
+    font-weight: 600;
+  }
+
+  .markdown-content :global(em) {
+    font-style: italic;
+  }
+
+  .markdown-content :global(del) {
+    text-decoration: line-through;
+  }
+
+  .markdown-content :global(.inline-code) {
+    padding: 2px 6px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    font-family: var(--font-family-code);
+    font-size: 0.9em;
+  }
+
+  /* Links */
+  .markdown-content :global(a) {
+    color: #58a6ff;
+    text-decoration: none;
+  }
+
+  .markdown-content :global(a:hover) {
+    text-decoration: underline;
+  }
+
+  /* Lists */
+  .markdown-content :global(ul),
+  .markdown-content :global(ol) {
+    margin-bottom: 16px;
+    padding-left: 16px;
+  }
+
+  .markdown-content :global(li) {
+    margin: 6px 0;
+    line-height: 1.6;
+  }
+
+  .markdown-content :global(ul) {
+    list-style-type: disc;
+    list-style-position: outside;
+  }
+
+  .markdown-content :global(ol) {
+    list-style-type: decimal;
+    list-style-position: outside;
+  }
+
+  .markdown-content :global(ul ul) {
+    list-style-type: circle;
+  }
+
+  .markdown-content :global(ul ul ul) {
+    list-style-type: square;
+  }
+
+  /* Tables */
+  .markdown-content :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .markdown-content :global(th),
+  .markdown-content :global(td) {
+    padding: 10px 0;
+    border-bottom: 1px solid #191919;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .markdown-content :global(th) {
+    font-weight: 700;
+  }
+
+  /* Horizontal rule */
+  .markdown-content :global(hr) {
+    margin: 24px 0;
+    border: none;
+    width: 100%;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
   }
 </style>
